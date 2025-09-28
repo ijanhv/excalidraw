@@ -81,30 +81,48 @@ app.post("/room", middleware, async (req, res) => {
   // @ts-ignore
   const userId = req.userId;
 
-  await prismaClient.room.create({
+  const room = await prismaClient.room.create({
     data: {
       slug: parsedData.data.name,
       adminId: userId,
     },
   });
-  res.json();
+  res.json({
+    roomId: room.id,
+    message: "Room created successfully",
+  });
 });
 
+app.get("/chats/:roomId", async (req, res) => {
+  const roomId = Number(req.params.roomId);
+  if (isNaN(roomId)) return res.status(400).json({ message: "Invalid roomId" });
 
-app.get("/chats/:roomId",  async (req,res) => {
-  const roomId = Number(req.params.roomId)
   const messages = await prismaClient.chat.findMany({
     where: {
       roomId: roomId,
     },
     orderBy: {
-      id: "desc"
+      id: "desc",
     },
-    take: 50
-  })
+    take: 50,
+  });
 
   res.json({
-    messages
-  })
-})
-app.listen(3001);
+    messages,
+  });
+});
+
+app.get("/room/:slug", async (req, res) => {
+  const slug = req.params.slug;
+  const room = await prismaClient.room.findFirst({
+    where: {
+      slug,
+    },
+  });
+
+  res.json({
+    room
+  });
+});
+
+app.listen(3001, () => console.log("Server running on port 3001"));
