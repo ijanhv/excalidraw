@@ -9,10 +9,12 @@ import {
 } from "@repo/common/types";
 import { prismaClient } from "@repo/db/client";
 import bcrypt from "bcrypt";
+import cors from "cors";
 
 const app = express();
 
 app.use(express.json());
+app.use(cors());
 
 app.post("/signup", async (req, res) => {
   const parsedData = CreateUserSchema.safeParse(req.body);
@@ -121,8 +123,8 @@ app.get("/room/:slug", async (req, res) => {
   });
 
   res.json({
-    room
+    room,
   });
 });
 
-app.listen(3001, () => console.log("Server running on port 3001"));
+app.listen(3003, () => console.log("Server running on port 3003"));
